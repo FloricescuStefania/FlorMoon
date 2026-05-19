@@ -1,0 +1,95 @@
+﻿<header>
+    <nav class="navbar navbar-expand-lg px-3 shadow fixed-top bg-white">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                <img src="~/Images/logo.png" alt="FlorMoon logo" width="30" height="30" class="align-text-top me-2">
+                <span class="h4 mb-0 font-weight-bold">FlorMoon</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Store" asp-action="Index">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+                    </li>
+                </ul>
+
+                <form class="d-flex me-3 search-form" asp-controller="Store" asp-action="Search" method="get">
+                    <div class="input-group">
+                        <input name="searchTerm" class="form-control border-end-0" type="search" placeholder="Search flowers..." aria-label="Search">
+                        <button class="btn btn-outline-dark border-start-0" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="nav-icons d-flex align-items-center">
+
+                    @if (!User.IsInRole("Administrator"))
+                    {
+                        <a asp-controller="Wishlist" asp-action="Index" class="text-dark me-3 position-relative" title="Favorite">
+                            <i class="far fa-heart fa-lg"></i>
+                            <span id="wishlist-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                                0
+                            </span>
+                        </a>
+
+                        <a asp-controller="ShoppingCart" asp-action="Index" class="text-dark me-3 position-relative" title="Shopping cart">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                                0
+                            </span>
+                        </a>
+                    }
+
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
+                    {
+                        <div class="dropdown me-3">
+                            <a class="text-danger position-relative dropdown-toggle" href="#" role="button" id="adminMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Panou Admin">
+                                <i class="fas fa-user-cog fa-lg"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="adminMenuLink">
+                                <li><h6 class="dropdown-header">Management Site</h6></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Users management</a></li>
+                                <li><a class="dropdown-item" asp-controller="Products" asp-action="Index">Products management</a></li>
+                                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Categories management</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="AllOrders">Orders management</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="AllReviews">Reviews management</a></li>
+                            </ul>
+                        </div>
+                    }
+
+                    <a asp-controller="Profile" asp-action="Profile" class="text-dark me-3" title="My profile">
+                        <i class="fas fa-user fa-lg"></i>
+                    </a>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <span class="nav-link text-dark fw-semibold px-2 me-2" style="cursor: default; pointer-events: none; user-select: none;">
+                            Hello @(User.Identity.Name)!
+                        </span>
+
+                        <form class="form-inline d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <button type="submit" class="nav-link btn btn-link text-dark border-0 bg-transparent p-0 m-0 align-baseline">Logout</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="nav-link text-dark me-2" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>

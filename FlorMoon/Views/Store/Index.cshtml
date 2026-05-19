@@ -1,0 +1,82 @@
+﻿@model IEnumerable<FlorMoon.Models.Product>
+
+<div class="container catalog-section mt-5 pt-5">
+    <h1 class="catalog-title mb-4">Catalog</h1>
+
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <label class="form-label small text-muted text-uppercase" style="letter-spacing:1px; font-size:10px;">Category</label>
+            <select class="form-select border-0 shadow-sm" style="border-radius:0;" id="catFilter" onchange="filter()">
+                <option value="">All Flowers</option>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var cat in (IEnumerable<FlorMoon.Models.Category>)ViewBag.Categories)
+                    {
+                        <option value="@cat.CategoryName" selected="@(ViewBag.CurrentCategory == cat.CategoryName ? "selected" : null)">
+                            @cat.CategoryName
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label small text-muted text-uppercase" style="letter-spacing:1px; font-size:10px;">Sort by Price</label>
+            <select class="form-select border-0 shadow-sm" style="border-radius:0;" id="sortFilter" onchange="filter()">
+                <option value="" selected="@(string.IsNullOrEmpty(ViewBag.CurrentSort) ? "selected" : null)">Default</option>
+                <option value="price_asc" selected="@(ViewBag.CurrentSort == "price_asc" ? "selected" : null)">Low to High</option>
+                <option value="price_desc" selected="@(ViewBag.CurrentSort == "price_desc" ? "selected" : null)">High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-6 mb-5">
+                <div class="product-item">
+                    <div class="product-img-wrapper" style="height: 550px; overflow:hidden; position:relative;">
+
+                        <a asp-action="Product" asp-route-id="@product.ProductID" style="display:block; width:100%; height:100%; text-decoration:none;">
+                            <img src="~/Images/@product.ImagePath"
+                                 alt="@product.ProductName"
+                                 style="width:100%; height:100%; object-fit:cover; display:block;"
+                                 onerror="this.src='/Images/no-image.png';">
+                        </a>
+
+                        @{
+                            var favIds = ViewBag.FavoriteIds as List<int> ?? new List<int>();
+                            bool isFavorite = favIds.Contains(product.ProductID);
+                        }
+
+                        <form asp-controller="Wishlist" asp-action="ToggleWishlist" asp-route-productId="@product.ProductID" method="post"
+                              style="position:absolute; top:20px; right:20px; z-index: 100; margin:0;">
+                            <button type="submit" class="btn-wishlist shadow-sm"
+                                    style="background:white; border:none; border-radius:50%; width:45px; height:45px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                                <i class="@(isFavorite ? "fas" : "far") fa-heart"
+                                   style="color:@(isFavorite ? "#e74c3c" : "#333"); font-size:1.2rem;"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="pt-3">
+                        <a asp-action="Product" asp-route-id="@product.ProductID" style="text-decoration:none; color:inherit; display:inline-block;">
+                            <h2 style="font-size:1.8rem; font-family: serif; margin-bottom: 5px;">@product.ProductName</h2>
+                        </a>
+
+                        <p class="text-muted">@product.Price Euro</p>
+
+                        <a asp-action="Product" asp-route-id="@product.ProductID" class="btn-order-outline text-decoration-none"
+                           style="display:inline-block; padding: 10px 25px; border: 1px solid #333; color: #333; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                            Order Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/catalog.js"></script>
+}

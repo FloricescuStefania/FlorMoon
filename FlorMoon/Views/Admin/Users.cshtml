@@ -1,0 +1,75 @@
+﻿@model IEnumerable<FlorMoon.Controllers.UserViewModel>
+
+@{
+    ViewData["Title"] = "Users Management";
+}
+
+<div class="container mt-4">
+    <h2>Users Management</h2>
+    <hr />
+
+    <table class="table table-bordered table-striped align-middle">
+        <thead>
+            <tr>
+                <th>User full name</th>
+                <th>Email</th>
+                <th>Phone number</th>
+                <th>Address</th>
+                <th>Role</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var user in Model)
+                {
+                    // Identificăm dacă rândul curent este adminul principal pentru a-i proteja contul
+                    bool isRootAdmin = user.Email.Equals("admin@flormoon.com", StringComparison.OrdinalIgnoreCase);
+
+                    <tr>
+                        <td class="fw-bold">@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.Address</td>
+                        <td>
+                            @foreach (var role in user.Roles)
+                            {
+                                string badgeClass = role.Equals("ADMINISTRATOR", StringComparison.OrdinalIgnoreCase)
+                                ? "bg-danger text-white"
+                                                                : "bg-info text-dark";
+                                <span class="badge @badgeClass me-1">@role</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                @if (!isRootAdmin)
+                                {
+                                    <form asp-action="DeleteUser" method="post" class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to definitely delete the user @user.Name?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            Șterge
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small fst-italic">Protected System Account</span>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">There are no registered users in the database.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

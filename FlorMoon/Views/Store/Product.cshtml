@@ -1,0 +1,195 @@
+﻿@model FlorMoon.Models.Product
+
+@{
+    ViewData["Title"] = Model.ProductName;
+    var imageName = Model.ImagePath ?? "";
+    if (!imageName.ToLower().EndsWith(".png") && !string.IsNullOrEmpty(imageName)) imageName += ".png";
+    var imageUrl = Url.Content("~/Images/" + imageName);
+}
+
+<section class="py-5 product-details-section">
+    <div class="container">
+        <div class="row g-5 align-items-start">
+            <div class="col-md-7 product-image-container">
+                <img src="@imageUrl" class="img-fluid" alt="@Model.ProductName" onerror="this.src='/Images/no-image.png';">
+            </div>
+
+            <div class="col-md-5">
+                <h2 class="product-title mb-2">@Model.ProductName</h2>
+                <p class="mb-3 fs-4 fw-bold">@Model.Price Euro</p>
+
+                <div class="product-action mt-4">
+                    <label class="small fw-bold d-block mb-2 text-uppercase">Quantity</label>
+                    <div class="quantity-selector d-flex align-items-center mb-3">
+                        <button type="button" class="btn border" id="decrease-qty">−</button>
+                        <input type="number" id="product-quantity" value="1" min="1" readonly>
+                        <button type="button" class="btn border" id="increase-qty">+</button>
+                    </div>
+
+                    <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post">
+                        <input type="hidden" name="productId" value="@Model.ProductID" />
+                        <input type="hidden" name="quantity" id="hidden-quantity" value="1" />
+                        <button type="submit" class="btn w-100 mb-4 btn-add-to-cart">
+                            ADD TO CART
+                        </button>
+                    </form>
+                </div>
+
+                <h6 class="fw-bold text-uppercase description-header">Description</h6>
+                <p class="text-muted">@Model.ProductDescription</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container my-5 border-top pt-5">
+    <div class="row">
+        <div class="col-md-7">
+            <h4 class="product-title mb-4">Customer Reviews</h4>
+            <div id="reviews-container">
+                @if (ViewBag.Reviews != null && ((IEnumerable<FlorMoon.Models.Review>)ViewBag.Reviews).Any())
+                {
+                    foreach (var review in (IEnumerable<FlorMoon.Models.Review>)ViewBag.Reviews)
+                    {
+                        <div class="mb-4 pb-3 border-bottom">
+                            <div id="display-review-@review.ReviewID">
+                                <div class="text-warning mb-1">
+                                    @for (int i = 0; i < review.Rating; i++)
+                                    {
+                                        <span>⭐</span>
+                                    }
+                                </div>
+                                <p class="mb-1">@review.Text</p>
+
+                                @if (User.Identity.IsAuthenticated && !User.IsInRole("ADMINISTRATOR") && User.Identity.Name != "admin@flormoon.com")
+                                {
+                                    <div class="d-flex gap-3">
+                                        <button class="btn btn-sm btn-link text-secondary p-0" onclick="toggleEdit(@review.ReviewID)">Edit</button>
+
+                                        <form asp-controller="Store" asp-action="DeleteReview" method="post" onsubmit="return confirm('Delete this review?');">
+                                            <input type="hidden" name="reviewId" value="@review.ReviewID" />
+                                            <input type="hidden" name="productId" value="@Model.ProductID" />
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0">Delete</button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+
+                            <div id="edit-form-@review.ReviewID" style="display:none;" class="mt-2 p-3 rounded review-edit-box bg-light border">
+                                <form asp-controller="Store" asp-action="EditReview" method="post">
+                                    <input type="hidden" name="ReviewID" value="@review.ReviewID" />
+                                    <input type="hidden" name="ProductID" value="@Model.ProductID" />
+
+                                    <div class="mb-2">
+                                        <label class="small fw-bold d-block">Modify Rating</label>
+                                        <select name="Rating" class="form-select form-select-sm" style="width: auto;">
+                                            @for (int i = 5; i >= 1; i--)
+                                            {
+                                                <option value="@i" selected="@(review.Rating == i)">@i Stars</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="small fw-bold d-block">Modify Comment</label>
+                                        <textarea name="Text" class="form-control" required>@review.Text</textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-sm btn-success px-3">Save</button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEdit(@review.ReviewID)">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted fst-italic">No reviews yet.</p>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("ADMINISTRATOR") || User.Identity.Name == "admin@flormoon.com")
+                {
+                    <div class="p-4 rounded shadow-sm border bg-light text-center">
+                        <i class="bi bi-shield-lock display-6 text-muted mb-2 d-block"></i>
+                        <h6 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Admin Mode</h6>
+                        <p class="text-muted small mb-0">Administratorii nu pot lăsa recenzii. Pentru moderare și ștergeri, folosește pagina dedicată din panoul de administrare.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 rounded shadow-sm border review-form-sidebar bg-white">
+                        <h6 class="fw-bold mb-3 text-center text-uppercase" style="letter-spacing: 1px;">Leave a Review</h6>
+                        <form asp-controller="Store" asp-action="AddReview" method="post">
+                            <input type="hidden" name="ProductID" value="@Model.ProductID" />
+                            <div class="mb-3">
+                                <label class="small fw-bold">Rating</label>
+                                <select name="Rating" class="form-select">
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="1">⭐</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Your Comment</label>
+                                <textarea name="Text" class="form-control" rows="3" required placeholder="Write your experience here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-dark w-100 fw-bold">POST REVIEW</button>
+                        </form>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="p-4 rounded shadow-sm border text-center bg-light">
+                    <i class="bi bi-person-lock display-6 text-muted mb-2 d-block"></i>
+                    <p class="text-muted mb-3 small">You must be logged in to share a review for this product.</p>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-sm btn-outline-dark fw-bold px-4">Log In</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function toggleEdit(reviewId) {
+            var displayDiv = document.getElementById('display-review-' + reviewId);
+            var editDiv = document.getElementById('edit-form-' + reviewId);
+
+            if (editDiv.style.display === 'none') {
+                editDiv.style.display = 'block';
+                displayDiv.style.display = 'none';
+            } else {
+                editDiv.style.display = 'none';
+                displayDiv.style.display = 'block';
+            }
+        }
+
+        const minusBtn = document.getElementById('decrease-qty');
+        const plusBtn = document.getElementById('increase-qty');
+        const qtyInput = document.getElementById('product-quantity');
+        const hiddenQty = document.getElementById('hidden-quantity');
+
+        if(minusBtn && plusBtn && qtyInput) {
+            minusBtn.addEventListener('click', () => {
+                let val = parseInt(qtyInput.value);
+                if(val > 1) {
+                    qtyInput.value = val - 1;
+                    hiddenQty.value = val - 1;
+                }
+            });
+            plusBtn.addEventListener('click', () => {
+                let val = parseInt(qtyInput.value);
+                qtyInput.value = val + 1;
+                hiddenQty.value = val + 1;
+            });
+        }
+    </script>
+}

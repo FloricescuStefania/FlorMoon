@@ -1,0 +1,78 @@
+﻿@model IEnumerable<FlorMoon.Controllers.ReviewAdminViewModel>
+
+@{
+    ViewData["Title"] = "Reviews Management";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Review ID</th>
+                            <th>Client</th>
+                            <th>Product</th>
+                            <th>Rating</th>
+                            <th>Review Text</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var review in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold">#@review.ReviewID</td>
+                                    <td>
+                                        <span class="fw-bold d-block">@review.ClientName</span>
+                                        @if (!string.IsNullOrEmpty(review.ClientEmail) && review.ClientEmail != "No Email")
+                                        {
+                                            <small class="text-muted">@review.ClientEmail</small>
+                                        }
+                                    </td>
+                                    <td>@review.ProductName</td>
+                                    <td>
+                                        <div class="text-warning">
+                                            <span class="ms-1 small text-muted">(@review.Rating/5)</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (string.IsNullOrWhiteSpace(review.Text))
+                                        {
+                                            <span class="text-muted fst-italic small">No review text.</span>
+                                        }
+                                        else
+                                        {
+                                            @review.Text
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <form asp-action="DeleteReview" method="post" class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to permanently delete this review from the database?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="reviewId" value="@review.ReviewID" />
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">There are no reviews added on the platform.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

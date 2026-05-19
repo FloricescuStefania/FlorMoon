@@ -1,0 +1,42 @@
+﻿@model IEnumerable<FlorMoon.Models.Product>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/wishlist.css" asp-append-version="true" />
+}
+
+<div class="container mt-5 pt-5">
+    @if (Model != null && Model.Any())
+    {
+        <h2 class="catalog-title text-center mb-5">My Wishlist</h2>
+
+        <div class="wishlist-simple-grid">
+            @foreach (var product in Model)
+            {
+                <div class="wishlist-card-simple">
+                    <a asp-controller="Store" asp-action="Product" asp-route-id="@product.ProductID" class="product-info-link">
+                        <div class="image-container">
+                            <img src="~/Images/@product.ImagePath" alt="@product.ProductName" />
+                        </div>
+                        <h5 class="product-name-wish">@product.ProductName</h5>
+                        <p class="product-price-wish">@product.Price.ToString("F2") €</p>
+                    </a>
+
+                    <form asp-controller="Wishlist" asp-action="ToggleWishlist" asp-route-productId="@product.ProductID" method="post">
+                        <button type="submit" class="btn-wishlist-remove">Remove</button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h2 class="catalog-title">Your wishlist is empty.</h2>
+            <p class="text-muted mb-4">It looks like you haven't saved any products yet.</p>
+
+            <a asp-controller="Store" asp-action="Index" class="btn-primary text-decoration-none">
+                Explore the Catalog
+            </a>
+        </div>
+    }
+</div>

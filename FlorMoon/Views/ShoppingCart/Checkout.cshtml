@@ -1,0 +1,62 @@
+﻿@model FlorMoon.Models.ShippingDetail
+@{
+    var user = ViewBag.User as FlorMoon.Models.User;
+    ViewData["Title"] = "Checkout";
+
+    string defaultAddress = user?.Address ?? "";
+
+    if (string.IsNullOrWhiteSpace(defaultAddress) ||
+        defaultAddress.Trim().Equals("Delivery to the address in the user profile", StringComparison.OrdinalIgnoreCase) ||
+        defaultAddress.Contains("missing default"))
+    {
+        defaultAddress = "";
+    }
+}
+
+<div class="container my-5" style="margin-top: 100px !important;">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <form asp-controller="ShoppingCart" asp-action="Checkout" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-4">
+                    <label asp-for="Address" class="form-label fw-bold">Delivery Address</label>
+                    <input type="text" asp-for="Address" class="form-control" id="Address"
+                           value="@defaultAddress"
+                           placeholder="Enter your delivery address (Street, Number, City)..." required />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(defaultAddress))
+                {
+                    <div class="form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="useDefault" checked onchange="toggleDefaultData(this)">
+                        <label class="form-check-label" for="useDefault">Use the address in your account</label>
+                    </div>
+                }
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-dark btn-lg">PLACE YOUR ORDER</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const savedAddress = "@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(defaultAddress))";
+
+        function toggleDefaultData(checkbox) {
+            const isChecked = checkbox.checked;
+            document.getElementById("Address").value = isChecked ? savedAddress : "";
+        }
+    </script>
+}

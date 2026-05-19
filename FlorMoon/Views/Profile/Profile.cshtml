@@ -1,0 +1,102 @@
+﻿@model FlorMoon.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="profile-page">
+    <div class="profile-layout">
+        <aside class="profile-sidebar">
+            <div class="profile-avatar-container text-center mb-3 position-relative">
+                <img src="@Model.ProfilePicturePath"
+                     class="rounded-circle img-thumbnail shadow-sm"
+                     style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #fff;"
+                     alt="Profile Picture"
+                     id="profileAvatarPreview" />
+
+                <div class="profile-logo-mini" style="position: absolute; bottom: 0; right: 35%; background: #fff; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
+                    <i class="fas fa-seedling text-success" style="font-size: 12px;"></i>
+                </div>
+            </div>
+
+            <div class="profile-name">
+                @(string.IsNullOrWhiteSpace(Model.FirstName) && string.IsNullOrWhiteSpace(Model.LastName)
+                                ? "New User" 
+                                        : $"{Model.FirstName} {Model.LastName}")
+            </div>
+            <div class="profile-email">@Model.Email</div>
+
+            <ul class="profile-nav">
+                <li class="profile-nav-item active">
+                    <a href="#account-info" data-bs-toggle="tab"><i class="fas fa-user"></i> Account Information</a>
+                </li>
+                <li class="profile-nav-item">
+                    <a href="#password-tab" data-bs-toggle="tab"><i class="fas fa-lock"></i> Change Password</a>
+                </li>
+                <li class="profile-nav-item logout">
+                    <form asp-controller="Profile" asp-action="Logout" method="post" id="logoutForm">
+                        @Html.AntiForgeryToken()
+                        <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit()">
+                            <i class="fas fa-right-from-bracket"></i> Logout
+                        </a>
+                    </form>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="account-card">
+@if (TempData["ProfileSuccess"] != null)
+{
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["ProfileSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+}
+@if (TempData["PasswordSuccess"] != null)
+{
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    <i class="fas fa-key me-2"></i> @TempData["PasswordSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+}
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="account-info" role="tabpanel">
+                    <h2 class="account-card-title">Account Information</h2>
+
+                    <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="field-grid">
+                            <div class="field-group field-full mb-3">
+                                <label class="field-label fw-bold text-muted">Change Profile Picture</label>
+                                <input type="file" name="profilePicture" class="form-control" accept=".jpg,.jpeg,.png" id="avatarFileInput" style="border-radius: 6px; padding: 8px;" />
+                                <div class="form-text small text-muted" style="font-size: 11px; margin-top: 4px;">Accepted formats: PNG, JPG, JPEG.</div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Last name</label>
+                                <input asp-for="LastName" class="field-input" placeholder="Not set">
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">First name</label>
+                                <input asp-for="FirstName" class="field-input" placeholder="Not set">
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Email</label>
+                                <input asp-for="Email" class="field-input" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Phone number</label>
+                                <input asp-for="PhoneNumber" class="field-input" placeholder="Not set (ex: 07xxxxxxxx)">
+                            </div>
+                            <div class="field-group field-full">
+                                <label class="field-label">Address</label>
+                                <textarea asp-for="Address" class="field-input" rows="3" placeholder="Not set (Street, Number, City...)"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-save">SAVE CHANGES</button>
+                    </form>
+                </div>

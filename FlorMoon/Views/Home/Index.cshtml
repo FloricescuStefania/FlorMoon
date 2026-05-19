@@ -1,0 +1,87 @@
+﻿@model IEnumerable<FlorMoon.Models.Product>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<section class="hero-section">
+    <img class="hero-photo" src="/Images/homePhoto.png" alt="Home Photo">
+    <div class="hero-text">
+        <h1 class="hero-title"> Discover the magic<br>and let each moment <br> blossom with happiness.</h1>
+        <a asp-controller="Store" asp-action="Index" class="btn btn-primary">Order Now</a>
+    </div>
+</section>
+
+<p class="about-shop">
+    Welcome to FloorMoon, where every bloom tells a story. Our passion is bringing beauty, color, and fragrance
+    into your life through carefully curated floral arrangements. From vibrant bouquets for special occasions to elegant
+    designs for everyday moments, we combine creativity with quality to make every floral experience unforgettable.
+    Step into a world of flowers and let us help you celebrate life's precious moments with nature's finest gifts.
+</p>
+
+<section class="py-4">
+    <div class="container">
+        <h2 class="text-center section-title mb-4">BEST SELLERS</h2>
+        <div class="row g-3">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4">
+                    <div class="arr-card">
+                        <a asp-controller="Store" asp-action="Product" asp-route-id="@product.ProductID">
+                            <img src="~/Images/@product.ImagePath" alt="@product.ProductName">
+                        </a>
+                        <div class="arr-card-label">@product.ProductName</div>
+                        <div class="arr-card-btn">
+                            <a asp-controller="Store" asp-action="Product" asp-route-id="@product.ProductID"
+                               class="btn btn-primary btn-sm">Order Now</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="features py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h3>Fresh Guarantee</h3>
+                    <p>7-day freshness guarantee on every bouquet</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-truck"></i>
+                    </div>
+                    <h3>Same Day Delivery</h3>
+                    <p>Fresh blooms at your door the same day</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3>Handcrafted</h3>
+                    <p>Handmade with care, just for you</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="promo-banner position-relative overflow-hidden">
+    <img src="/Images/meetTeam.png" alt="Meet our team" class="promo-img">
+    <div class="promo-overlay d-flex align-items-center justify-content-center">
+        <div class="container text-center text-white">
+            <h2 class="promo-title">From Our Garden to Your Heart.<br>Meet our team.</h2>
+            <a asp-controller="Home" asp-action="About" class="btn btn-primary">About us</a>
+        </div>
+    </div>
+</section>

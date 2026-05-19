@@ -1,0 +1,91 @@
+﻿@model IEnumerable<FlorMoon.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders Management";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Order Date</th>
+                            <th>Total payment</th>
+                            <th>Status </th>
+                            <th class="text-center"> Change Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var order in Model)
+                            {
+                                var orderStatus = order.Status?.Trim().ToLower();
+                                <tr>
+                                    <td class="fw-bold">#@order.OrderID</td>
+                                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="fw-bold">@order.OrderPrice.ToString("0.00") EURO</td>
+                                    <td>
+                                        <span class="badge bg-@(orderStatus switch {
+                                            "pending" => "warning text-dark",
+                                            "processing" => "info text-dark",
+                                            "shipped" => "primary",
+                                            "delivered" => "success",
+                                            _ => "secondary"
+                                        })">@order.Status</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (orderStatus == "pending")
+                                        {
+                                            <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderId" value="@order.OrderID" />
+                                                <input type="hidden" name="status" value="Processing" />
+                                                <button type="submit" class="btn btn-sm btn-info">Prepare the Order</button>
+                                            </form>
+                                        }
+                                        else if (orderStatus == "processing")
+                                        {
+                                            <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderId" value="@order.OrderID" />
+                                                <input type="hidden" name="status" value="Shipped" />
+                                                <button type="submit" class="btn btn-sm btn-primary">Ship (Courier Delivery)</button>
+                                            </form>
+                                        }
+                                        else if (orderStatus == "shipped")
+                                        {
+                                            <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderId" value="@order.OrderID" />
+                                                <input type="hidden" name="status" value="Delivered" />
+                                                <button type="submit" class="btn btn-sm btn-success">Mark as Delivered</button>
+                                            </form>
+                                        }
+                                        else if (orderStatus == "delivered")
+                                        {
+                                            <span class="text-success fw-bold">
+                                                <i class="bi bi-check-circle-fill"></i> Delivery Completed
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">There are no orders placed.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

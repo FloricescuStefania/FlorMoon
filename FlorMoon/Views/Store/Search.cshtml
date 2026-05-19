@@ -1,0 +1,37 @@
+﻿@model IEnumerable<FlorMoon.Models.Product>
+
+<div class="container mt-5 pt-5">
+    <h2 class="section-serif mb-4">Search Results for: "@ViewBag.SearchTerm"</h2>
+    <hr />
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-search-minus text-muted mb-3" style="font-size: 3rem;"></i>
+            <p class="fs-5 text-muted">No flowers found matching your search.</p>
+            <a asp-action="Index" class="btn btn-outline-dark mt-2">View All Products</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var product in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; transition: transform 0.2s;">
+                        <img src="~/Images/@product.ImagePath" class="card-img-top p-2" alt="@product.ProductName"
+                             style="height: 250px; object-fit: cover; border-radius: 18px;">
+
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold mb-1">@product.ProductName</h6>
+                            <p class="text-muted small mb-2">@product.Price.ToString("0.00") EURO</p>
+                            <a asp-action="Product" asp-route-id="@product.ProductID" class="btn btn-dark btn-sm w-100" style="border-radius: 8px;">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
